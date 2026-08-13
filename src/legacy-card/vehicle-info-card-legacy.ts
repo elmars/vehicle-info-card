@@ -57,10 +57,10 @@ const leaseAttrNumber = (stateObj: any, key: string): number => {
   return Number.isFinite(value) ? value : NaN;
 };
 
-const formatSignedDistance = (value: number, unit: string): string => {
+// absolute value — the direction (over/under) is carried by the case-dependent label
+const formatLeaseDistance = (value: number, unit: string): string => {
   if (!Number.isFinite(value)) return '—';
-  const rounded = Math.round(value);
-  return `${rounded > 0 ? '+' : ''}${rounded.toLocaleString()} ${unit || 'km'}`;
+  return `${Math.abs(Math.round(value)).toLocaleString()} ${unit || 'km'}`;
 };
 
 // positive = extra distance / extra cost (error), negative = under distance / refund (good)
@@ -74,10 +74,11 @@ const formatLeaseRemaining = (days: number, months: number, daysUnit: string, mo
 
 const formatLeaseCost = (value: number, currency: string): string => {
   if (!Number.isFinite(value)) return '—';
+  const absValue = Math.abs(value);
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(value);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(absValue);
   } catch {
-    return `${value.toFixed(2)} ${currency || 'EUR'}`;
+    return `${absValue.toFixed(2)} ${currency || 'EUR'}`;
   }
 };
 
@@ -479,6 +480,10 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
     const currency = (this._hass.config as any)?.currency || 'EUR';
     const localize = (key: string): string => this.localize(`card.leasingCard.${key}`);
+    const dirOf = (value: number): number =>
+      !Number.isFinite(value) || Math.round(value) === 0 ? 0 : value > 0 ? 1 : -1;
+    const kmName = (value: number, fallbackKey: string): string =>
+      dirOf(value) > 0 ? localize('excessKm') : dirOf(value) < 0 ? localize('underKm') : localize(fallbackKey);
     const items = [
       {
         icon: 'mdi:calendar-clock',
@@ -488,19 +493,27 @@ export class VehicleCard extends LitElement implements LovelaceCard {
       },
       {
         icon: 'mdi:map-marker-distance',
-        name: localize('kmBalance'),
-        state: formatSignedDistance(deviation, distanceUnit),
+        name: kmName(deviation, 'kmBalance'),
+        state: formatLeaseDistance(deviation, distanceUnit),
         error: leaseDeltaError(deviation),
       },
       {
         icon: 'mdi:chart-line',
-        name: localize('projectedAtEnd'),
-        state: formatSignedDistance(projectedDelta, distanceUnit),
+        name:
+          dirOf(projectedDelta) === 0
+            ? localize('projectedAtEnd')
+            : `${localize('projected')}: ${kmName(projectedDelta, 'projectedAtEnd')}`,
+        state: formatLeaseDistance(projectedDelta, distanceUnit),
         error: leaseDeltaError(projectedDelta),
       },
       {
         icon: 'mdi:cash',
-        name: localize('costRefund'),
+        name:
+          dirOf(projectedCost) > 0
+            ? localize('payment')
+            : dirOf(projectedCost) < 0
+              ? localize('refund')
+              : localize('costRefund'),
         state: formatLeaseCost(projectedCost, currency),
         error: leaseDeltaError(projectedCost),
       },

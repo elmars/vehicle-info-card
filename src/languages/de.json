@@ -139,6 +139,11 @@
             "leaseRemaining": "Restlaufzeit",
             "kmBalance": "km-Bilanz",
             "projectedAtEnd": "Prognose Leasingende",
+            "projected": "Prognose",
+            "excessKm": "Mehrkilometer",
+            "underKm": "Minderkilometer",
+            "payment": "Nachzahlung",
+            "refund": "Erstattung",
             "costRefund": "Kosten / Erstattung",
             "days": "Tage",
             "months": "Mon."
