@@ -793,3 +793,83 @@ dialog::backdrop {
     opacity: 1;
   }
 }
+/* LEASING SECTION (chip grid like vehicle buttons) */
+.leasing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc((100% - 24px) / 2), 1fr));
+  grid-template-rows: auto;
+  grid-gap: var(--vic-gutter-gap);
+  margin-top: var(--vic-gutter-gap);
+}
+
+.leasing-grid .grid-item {
+  display: flex;
+  position: relative;
+  padding: var(--vic-gutter-gap) var(--vic-card-padding);
+  background: var(--secondary-background-color, var(--card-background-color, #fff));
+  box-shadow: var(--ha-card-box-shadow);
+  box-sizing: border-box;
+  border-radius: var(--ha-card-border-radius, 12px);
+  border-width: var(--ha-card-border-width, 1px);
+  border-style: solid;
+  border-color: var(--ha-card-border-color, var(--divider-color, #e0e0e0));
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  gap: 1em;
+}
+
+.leasing-grid .item-icon .icon-background {
+  position: relative;
+  width: var(--vic-icon-size);
+  height: var(--vic-icon-size);
+  border-radius: var(--vic-icon-border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--secondary-text-color);
+}
+
+.leasing-grid .item-icon .icon-background::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--disabled-text-color);
+  opacity: var(--vic-icon-bg-opacity);
+}
+
+.leasing-grid .item-icon .icon-background[error]::before {
+  background-color: var(--error-color);
+}
+
+.leasing-grid .item-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.leasing-grid .item-content .primary {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.leasing-grid .item-content .secondary {
+  color: var(--secondary-text-color);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+}

@@ -36,6 +36,7 @@ import {
   CustomButtonTemplate,
   CustomCardUIEditor,
   ENTITY_CARD_NAME_SCHEMA,
+  LEASING_SCHEMA,
   LANG_SCHEMA,
   PanelImages,
   SERVICE_SCHEMA,
@@ -278,11 +279,7 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
 
   private _renderNameEntityForm(): TemplateResult {
     const modelName = this._modelName || '';
-    const DATA = {
-      entity: this._config.entity || '',
-      name: this._config.name || '',
-      leasing_entity: this._config.leasing_entity || '',
-    };
+    const DATA = { entity: this._config.entity || '', name: this._config.name || '' };
 
     return this._createHaForm(DATA, ENTITY_CARD_NAME_SCHEMA(modelName));
   }
@@ -310,7 +307,9 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
       hideHeader: true,
     });
 
-    return html`<ha-alert alert-type="info">${translate.info}</ha-alert>${defaultCardList}`;
+    const leasingForm = this._createHaForm({ leasing_entity: this._config.leasing_entity || '' }, LEASING_SCHEMA);
+
+    return html`<ha-alert alert-type="info">${translate.info}</ha-alert>${defaultCardList}${leasingForm}`;
   }
 
   private _renderCustomButtonPanel(): TemplateResult {

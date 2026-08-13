@@ -485,23 +485,22 @@ export class VehicleCard extends LitElement implements LovelaceCard {
       { icon: 'mdi:cash', name: 'Cost / refund', state: formatLeaseCost(projectedCost, currency), error: leaseDeltaError(projectedCost) },
     ];
     return html`
-      <div id="leasing" class="default-card">
-        <div class="data-header">Leasing</div>
-        <div class="data-box">
-          ${items.map(
-            ({ icon, name, state, error }) => html`
-              <div class="data-row">
-                <div>
-                  <ha-icon class="data-icon" .icon=${icon} @click=${() => this.toggleMoreInfo(leasingEntityId)}></ha-icon>
-                  <span class="data-label">${name}</span>
-                </div>
-                <div class="data-value-unit" ?error=${error} @click=${() => this.toggleMoreInfo(leasingEntityId)}>
-                  <span>${state}</span>
+      <div id="leasing" class="leasing-grid">
+        ${items.map(
+          ({ icon, name, state, error }) => html`
+            <div class="grid-item" @click=${() => this.toggleMoreInfo(leasingEntityId)}>
+              <div class="item-icon">
+                <div class="icon-background" ?error=${error}>
+                  <ha-icon .icon=${icon} ?error=${error}></ha-icon>
                 </div>
               </div>
-            `,
-          )}
-        </div>
+              <div class="item-content">
+                <div class="primary"><span>${name}</span></div>
+                <span class="secondary" ?error=${error}>${state}</span>
+              </div>
+            </div>
+          `,
+        )}
       </div>
     `;
   }
@@ -1739,7 +1738,7 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     if (show_buttons) gridRowSize += gridButtonsHeight;
     if (show_header_info) gridRowSize += headerInfoHeight;
     if (configName) gridRowSize += name;
-    if (this.config.leasing_entity) gridRowSize += 230 / ROWPX;
+    if (this.config.leasing_entity) gridRowSize += 130 / ROWPX;
     gridRowSize -= miniMapAtTopOrBottom;
 
     return gridRowSize;
