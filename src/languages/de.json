@@ -135,6 +135,14 @@
             "stateClosed": "Geschlossen",
             "stateOpen": "Offen"
         },
+        "leasingCard": {
+            "leaseRemaining": "Restlaufzeit",
+            "kmBalance": "km-Bilanz",
+            "projectedAtEnd": "Prognose Leasingende",
+            "costRefund": "Kosten / Erstattung",
+            "days": "Tage",
+            "months": "Mon."
+        },
         "tripCard": {
             "adBlueLevel": "AdBlue-Stand",
             "averageSpeedReset": "Durchschnittsgeschwindigkeit",
@@ -217,6 +225,7 @@
         "buttonConfig": {
             "desc": "Konfigurieren Sie die Unterkarten für einzelne Schaltflächen.",
             "title": "Schaltflächenkonfiguration",
+            "leasingSensor": "Leasing-Sensor (optional)",
             "defaultCards": "Standardkarten",
             "customCards": "Benutzerdefinierte Karten",
             "addNewCard": "Neue Karte hinzufügen",

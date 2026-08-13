@@ -66,9 +66,9 @@ const formatSignedDistance = (value: number, unit: string): string => {
 // positive = extra distance / extra cost (error), negative = under distance / refund (good)
 const leaseDeltaError = (value: number): boolean => Number.isFinite(value) && Math.round(value) > 0;
 
-const formatLeaseRemaining = (days: number, months: number): string => {
-  if (Number.isFinite(days) && days < 61) return `${Math.max(0, Math.round(days))} d`;
-  if (Number.isFinite(months)) return `${months} mo`;
+const formatLeaseRemaining = (days: number, months: number, daysUnit: string, monthsUnit: string): string => {
+  if (Number.isFinite(days) && days < 61) return `${Math.max(0, Math.round(days))} ${daysUnit}`;
+  if (Number.isFinite(months)) return `${months.toLocaleString()} ${monthsUnit}`;
   return '—';
 };
 
@@ -478,11 +478,32 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const projectedCost = available ? leaseAttrNumber(leaseState, 'projected_cost') : NaN;
     const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
     const currency = (this._hass.config as any)?.currency || 'EUR';
+    const localize = (key: string): string => this.localize(`card.leasingCard.${key}`);
     const items = [
-      { icon: 'mdi:calendar-clock', name: 'Lease remaining', state: formatLeaseRemaining(daysRemaining, monthsRemaining), error: false },
-      { icon: 'mdi:map-marker-distance', name: 'km balance', state: formatSignedDistance(deviation, distanceUnit), error: leaseDeltaError(deviation) },
-      { icon: 'mdi:chart-line', name: 'Projected at end', state: formatSignedDistance(projectedDelta, distanceUnit), error: leaseDeltaError(projectedDelta) },
-      { icon: 'mdi:cash', name: 'Cost / refund', state: formatLeaseCost(projectedCost, currency), error: leaseDeltaError(projectedCost) },
+      {
+        icon: 'mdi:calendar-clock',
+        name: localize('leaseRemaining'),
+        state: formatLeaseRemaining(daysRemaining, monthsRemaining, localize('days'), localize('months')),
+        error: false,
+      },
+      {
+        icon: 'mdi:map-marker-distance',
+        name: localize('kmBalance'),
+        state: formatSignedDistance(deviation, distanceUnit),
+        error: leaseDeltaError(deviation),
+      },
+      {
+        icon: 'mdi:chart-line',
+        name: localize('projectedAtEnd'),
+        state: formatSignedDistance(projectedDelta, distanceUnit),
+        error: leaseDeltaError(projectedDelta),
+      },
+      {
+        icon: 'mdi:cash',
+        name: localize('costRefund'),
+        state: formatLeaseCost(projectedCost, currency),
+        error: leaseDeltaError(projectedCost),
+      },
     ];
     return html`
       <div id="leasing" class="leasing-grid">

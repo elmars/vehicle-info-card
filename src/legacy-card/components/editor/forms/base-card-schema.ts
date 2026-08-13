@@ -24,15 +24,18 @@ export const ENTITY_CARD_NAME_SCHEMA = memoizeOne(
     ] as const
 );
 
-export const LEASING_SCHEMA = [
-  {
-    name: 'leasing_entity',
-    label: 'Leasing sensor (optional)',
-    selector: {
-      entity: { domain: 'sensor' },
-    },
-  },
-] as const;
+export const LEASING_SCHEMA = memoizeOne(
+  (label: string) =>
+    [
+      {
+        name: 'leasing_entity',
+        label,
+        selector: {
+          entity: { domain: 'sensor' },
+        },
+      },
+    ] as const
+);
 
 export const SHOW_CONFIG_SCHEMA = memoizeOne((options: any[]) => [
   {

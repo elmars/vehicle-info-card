@@ -135,6 +135,14 @@
             "stateClosed": "Closed",
             "stateOpen": "Open"
         },
+        "leasingCard": {
+            "leaseRemaining": "Lease remaining",
+            "kmBalance": "km balance",
+            "projectedAtEnd": "Projected at end",
+            "costRefund": "Cost / refund",
+            "days": "d",
+            "months": "mo"
+        },
         "tripCard": {
             "adBlueLevel": "AdBlue level",
             "averageSpeedReset": "Average speed",
@@ -217,6 +225,7 @@
         "buttonConfig": {
             "desc": "Configure the subcards for individual buttons.",
             "title": "Buttons configuration",
+            "leasingSensor": "Leasing sensor (optional)",
             "defaultCards": "Default cards",
             "customCards": "Custom cards",
             "addNewCard": "Add new card",

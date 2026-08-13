@@ -307,7 +307,10 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
       hideHeader: true,
     });
 
-    const leasingForm = this._createHaForm({ leasing_entity: this._config.leasing_entity || '' }, LEASING_SCHEMA);
+    const leasingForm = this._createHaForm(
+      { leasing_entity: this._config.leasing_entity || '' },
+      LEASING_SCHEMA(localize('leasingSensor'))
+    );
 
     return html`<ha-alert alert-type="info">${translate.info}</ha-alert>${defaultCardList}${leasingForm}`;
   }
