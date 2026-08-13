@@ -52,6 +52,35 @@ import { EcoChart, RemoteControl, VehicleButtons, VehicleMap } from './component
 
 const ROWPX = 58;
 
+const leaseAttrNumber = (stateObj: any, key: string): number => {
+  const value = Number(stateObj?.attributes?.[key]);
+  return Number.isFinite(value) ? value : NaN;
+};
+
+const formatSignedDistance = (value: number, unit: string): string => {
+  if (!Number.isFinite(value)) return '—';
+  const rounded = Math.round(value);
+  return `${rounded > 0 ? '+' : ''}${rounded.toLocaleString()} ${unit || 'km'}`;
+};
+
+// positive = extra distance / extra cost (error), negative = under distance / refund (good)
+const leaseDeltaError = (value: number): boolean => Number.isFinite(value) && Math.round(value) > 0;
+
+const formatLeaseRemaining = (days: number, months: number): string => {
+  if (Number.isFinite(days) && days < 61) return `${Math.max(0, Math.round(days))} d`;
+  if (Number.isFinite(months)) return `${months} mo`;
+  return '—';
+};
+
+const formatLeaseCost = (value: number, currency: string): string => {
+  if (!Number.isFinite(value)) return '—';
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(value);
+  } catch {
+    return `${value.toFixed(2)} ${currency || 'EUR'}`;
+  }
+};
+
 @customElement(VEHICLE_INFO_CARD_NAME)
 export class VehicleCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -432,7 +461,48 @@ export class VehicleCard extends LitElement implements LovelaceCard {
               return '';
           }
         })}
+        ${this._renderLeasing()}
       </main>
+    `;
+  }
+
+  private _renderLeasing(): TemplateResult | typeof nothing {
+    const leasingEntityId = typeof this.config.leasing_entity === 'string' ? this.config.leasing_entity : '';
+    if (!leasingEntityId) return nothing;
+    const leaseState = this._hass.states[leasingEntityId];
+    const available = leaseState && !/(unknown|unavailable)/.test(leaseState.state);
+    const daysRemaining = available ? leaseAttrNumber(leaseState, 'days_remaining') : NaN;
+    const monthsRemaining = available ? leaseAttrNumber(leaseState, 'months_remaining') : NaN;
+    const deviation = available ? leaseAttrNumber(leaseState, 'deviation') : NaN;
+    const projectedDelta = available ? Number(leaseState.state) : NaN;
+    const projectedCost = available ? leaseAttrNumber(leaseState, 'projected_cost') : NaN;
+    const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
+    const currency = (this._hass.config as any)?.currency || 'EUR';
+    const items = [
+      { icon: 'mdi:calendar-clock', name: 'Lease remaining', state: formatLeaseRemaining(daysRemaining, monthsRemaining), error: false },
+      { icon: 'mdi:map-marker-distance', name: 'km balance', state: formatSignedDistance(deviation, distanceUnit), error: leaseDeltaError(deviation) },
+      { icon: 'mdi:chart-line', name: 'Projected at end', state: formatSignedDistance(projectedDelta, distanceUnit), error: leaseDeltaError(projectedDelta) },
+      { icon: 'mdi:cash', name: 'Cost / refund', state: formatLeaseCost(projectedCost, currency), error: leaseDeltaError(projectedCost) },
+    ];
+    return html`
+      <div id="leasing" class="default-card">
+        <div class="data-header">Leasing</div>
+        <div class="data-box">
+          ${items.map(
+            ({ icon, name, state, error }) => html`
+              <div class="data-row">
+                <div>
+                  <ha-icon class="data-icon" .icon=${icon} @click=${() => this.toggleMoreInfo(leasingEntityId)}></ha-icon>
+                  <span class="data-label">${name}</span>
+                </div>
+                <div class="data-value-unit" ?error=${error} @click=${() => this.toggleMoreInfo(leasingEntityId)}>
+                  <span>${state}</span>
+                </div>
+              </div>
+            `,
+          )}
+        </div>
+      </div>
     `;
   }
 
@@ -1669,6 +1739,7 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     if (show_buttons) gridRowSize += gridButtonsHeight;
     if (show_header_info) gridRowSize += headerInfoHeight;
     if (configName) gridRowSize += name;
+    if (this.config.leasing_entity) gridRowSize += 230 / ROWPX;
     gridRowSize -= miniMapAtTopOrBottom;
 
     return gridRowSize;

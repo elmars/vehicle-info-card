@@ -278,7 +278,11 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
 
   private _renderNameEntityForm(): TemplateResult {
     const modelName = this._modelName || '';
-    const DATA = { entity: this._config.entity || '', name: this._config.name || '' };
+    const DATA = {
+      entity: this._config.entity || '',
+      name: this._config.name || '',
+      leasing_entity: this._config.leasing_entity || '',
+    };
 
     return this._createHaForm(DATA, ENTITY_CARD_NAME_SCHEMA(modelName));
   }

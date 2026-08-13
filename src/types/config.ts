@@ -17,6 +17,7 @@ import { AddedCards, BaseButtonConfig } from './legacy-card-config/legacy-button
 export interface VehicleCardConfig extends LovelaceCardConfig {
   entity: string;
   name?: string;
+  leasing_entity?: string;
   selected_language?: string;
   model_name?: string;
   images?: ImageConfig[];

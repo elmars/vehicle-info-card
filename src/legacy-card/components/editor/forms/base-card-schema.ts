@@ -21,6 +21,13 @@ export const ENTITY_CARD_NAME_SCHEMA = memoizeOne(
           },
         },
       },
+      {
+        name: 'leasing_entity',
+        label: 'Leasing sensor (optional)',
+        selector: {
+          entity: { domain: 'sensor' },
+        },
+      },
     ] as const
 );
 
