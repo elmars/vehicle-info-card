@@ -307,9 +307,21 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
       hideHeader: true,
     });
 
+    const leasingToggles = [
+      { name: 'leasing_show_remaining', label: this.localize('card.leasingCard.leaseRemaining') },
+      { name: 'leasing_show_monthly', label: this.localize('card.leasingCard.monthlyRemaining') },
+      { name: 'leasing_show_projected', label: this.localize('card.leasingCard.projectedAtEnd') },
+      { name: 'leasing_show_cost', label: this.localize('card.leasingCard.costRefund') },
+    ];
     const leasingForm = this._createHaForm(
-      { leasing_entity: this._config.leasing_entity || '' },
-      LEASING_SCHEMA(localize('leasingSensor'))
+      {
+        leasing_entity: this._config.leasing_entity || '',
+        leasing_show_remaining: this._config.leasing_show_remaining !== false,
+        leasing_show_monthly: this._config.leasing_show_monthly !== false,
+        leasing_show_projected: this._config.leasing_show_projected !== false,
+        leasing_show_cost: this._config.leasing_show_cost !== false,
+      },
+      LEASING_SCHEMA(localize('leasingSensor'), leasingToggles)
     );
 
     return html`<ha-alert alert-type="info">${translate.info}</ha-alert>${defaultCardList}${leasingForm}`;

@@ -18,6 +18,10 @@ export interface VehicleCardConfig extends LovelaceCardConfig {
   entity: string;
   name?: string;
   leasing_entity?: string;
+  leasing_show_remaining?: boolean;
+  leasing_show_monthly?: boolean;
+  leasing_show_projected?: boolean;
+  leasing_show_cost?: boolean;
   selected_language?: string;
   model_name?: string;
   images?: ImageConfig[];

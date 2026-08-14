@@ -488,12 +488,14 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const localize = (key: string): string => this.localize(`card.leasingCard.${key}`);
     const projectedDir = leaseDir(projectedDelta);
     const costDir = leaseDir(projectedCost);
+    const show = (key: keyof VehicleCardConfig): boolean => this.config[key] !== false;
     const items = [
       {
         icon: 'mdi:calendar-clock',
         name: localize('leaseRemaining'),
         state: formatLeaseRemaining(daysRemaining, monthsRemaining, localize('days'), localize('months')),
         dir: '',
+        visible: show('leasing_show_remaining'),
       },
       {
         // remaining allowed average distance per month; negative = allowance already used up
@@ -503,6 +505,7 @@ export class VehicleCard extends LitElement implements LovelaceCard {
           ? `${Math.round(monthlyRemaining).toLocaleString()} ${distanceUnit}`
           : '—',
         dir: Number.isFinite(monthlyRemaining) && monthlyRemaining < 0 ? 'error' : '',
+        visible: show('leasing_show_monthly'),
       },
       {
         // Directional label ("excess"/"under") carries the sign, so the value goes unsigned;
@@ -518,6 +521,7 @@ export class VehicleCard extends LitElement implements LovelaceCard {
           ? formatLeaseDistance(projectedDelta, distanceUnit)
           : formatSignedDistance(projectedDelta, distanceUnit),
         dir: projectedDir,
+        visible: show('leasing_show_projected'),
       },
       {
         icon: 'mdi:cash',
@@ -525,8 +529,10 @@ export class VehicleCard extends LitElement implements LovelaceCard {
           costDir === 'error' ? localize('payment') : costDir === 'good' ? localize('refund') : localize('costRefund'),
         state: formatLeaseCost(costDir ? Math.abs(projectedCost) : projectedCost, currency),
         dir: costDir,
+        visible: show('leasing_show_cost'),
       },
-    ];
+    ].filter((item) => item.visible);
+    if (!items.length) return nothing;
     return html`
       <div id="leasing" class="leasing-grid">
         ${items.map(
@@ -1781,7 +1787,12 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     if (show_buttons) gridRowSize += gridButtonsHeight;
     if (show_header_info) gridRowSize += headerInfoHeight;
     if (configName) gridRowSize += name;
-    if (this.config.leasing_entity) gridRowSize += 130 / ROWPX;
+    if (this.config.leasing_entity) {
+      const visibleLeasingItems = (
+        ['leasing_show_remaining', 'leasing_show_monthly', 'leasing_show_projected', 'leasing_show_cost'] as const
+      ).filter((key) => this.config[key] !== false).length;
+      gridRowSize += (Math.ceil(visibleLeasingItems / 2) * 65) / ROWPX;
+    }
     gridRowSize -= miniMapAtTopOrBottom;
 
     return gridRowSize;
