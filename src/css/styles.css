@@ -847,6 +847,14 @@ dialog::backdrop {
   background-color: var(--error-color);
 }
 
+.leasing-grid [good] {
+  color: var(--success-color);
+}
+
+.leasing-grid .item-icon .icon-background[good]::before {
+  background-color: var(--success-color);
+}
+
 .leasing-grid .item-content {
   display: flex;
   flex-direction: column;

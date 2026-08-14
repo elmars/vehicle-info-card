@@ -57,6 +57,12 @@ const leaseAttrNumber = (stateObj: any, key: string): number => {
   return Number.isFinite(value) ? value : NaN;
 };
 
+const formatSignedDistance = (value: number, unit: string): string => {
+  if (!Number.isFinite(value)) return '—';
+  const rounded = Math.round(value);
+  return `${rounded > 0 ? '+' : ''}${rounded.toLocaleString()} ${unit || 'km'}`;
+};
+
 // absolute value — the direction (over/under) is carried by the case-dependent label
 const formatLeaseDistance = (value: number, unit: string): string => {
   if (!Number.isFinite(value)) return '—';
@@ -64,7 +70,8 @@ const formatLeaseDistance = (value: number, unit: string): string => {
 };
 
 // positive = extra distance / extra cost (error), negative = under distance / refund (good)
-const leaseDeltaError = (value: number): boolean => Number.isFinite(value) && Math.round(value) > 0;
+const leaseDir = (value: number): 'error' | 'good' | '' =>
+  !Number.isFinite(value) || Math.round(value) === 0 ? '' : value > 0 ? 'error' : 'good';
 
 const formatLeaseRemaining = (days: number, months: number, daysUnit: string, monthsUnit: string): string => {
   if (Number.isFinite(days) && days < 61) return `${Math.max(0, Math.round(days))} ${daysUnit}`;
@@ -74,11 +81,10 @@ const formatLeaseRemaining = (days: number, months: number, daysUnit: string, mo
 
 const formatLeaseCost = (value: number, currency: string): string => {
   if (!Number.isFinite(value)) return '—';
-  const absValue = Math.abs(value);
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(absValue);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR' }).format(value);
   } catch {
-    return `${absValue.toFixed(2)} ${currency || 'EUR'}`;
+    return `${value.toFixed(2)} ${currency || 'EUR'}`;
   }
 };
 
@@ -480,57 +486,57 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
     const currency = (this._hass.config as any)?.currency || 'EUR';
     const localize = (key: string): string => this.localize(`card.leasingCard.${key}`);
-    const dirOf = (value: number): number =>
-      !Number.isFinite(value) || Math.round(value) === 0 ? 0 : value > 0 ? 1 : -1;
-    const kmName = (value: number, fallbackKey: string): string =>
-      dirOf(value) > 0 ? localize('excessKm') : dirOf(value) < 0 ? localize('underKm') : localize(fallbackKey);
+    const projectedDir = leaseDir(projectedDelta);
+    const costDir = leaseDir(projectedCost);
     const items = [
       {
         icon: 'mdi:calendar-clock',
         name: localize('leaseRemaining'),
         state: formatLeaseRemaining(daysRemaining, monthsRemaining, localize('days'), localize('months')),
-        error: false,
+        dir: '',
       },
       {
         icon: 'mdi:map-marker-distance',
-        name: kmName(deviation, 'kmBalance'),
-        state: formatLeaseDistance(deviation, distanceUnit),
-        error: leaseDeltaError(deviation),
+        name: localize('kmBalance'),
+        state: formatSignedDistance(deviation, distanceUnit),
+        dir: leaseDir(deviation),
       },
       {
+        // Directional label ("excess"/"under") carries the sign, so the value goes unsigned;
+        // neutral/unknown keeps the generic label with the signed value.
         icon: 'mdi:chart-line',
         name:
-          dirOf(projectedDelta) === 0
-            ? localize('projectedAtEnd')
-            : `${localize('projected')}: ${kmName(projectedDelta, 'projectedAtEnd')}`,
-        state: formatLeaseDistance(projectedDelta, distanceUnit),
-        error: leaseDeltaError(projectedDelta),
+          projectedDir === 'error'
+            ? localize('excessKm')
+            : projectedDir === 'good'
+              ? localize('underKm')
+              : localize('projectedAtEnd'),
+        state: projectedDir
+          ? formatLeaseDistance(projectedDelta, distanceUnit)
+          : formatSignedDistance(projectedDelta, distanceUnit),
+        dir: projectedDir,
       },
       {
         icon: 'mdi:cash',
         name:
-          dirOf(projectedCost) > 0
-            ? localize('payment')
-            : dirOf(projectedCost) < 0
-              ? localize('refund')
-              : localize('costRefund'),
-        state: formatLeaseCost(projectedCost, currency),
-        error: leaseDeltaError(projectedCost),
+          costDir === 'error' ? localize('payment') : costDir === 'good' ? localize('refund') : localize('costRefund'),
+        state: formatLeaseCost(costDir ? Math.abs(projectedCost) : projectedCost, currency),
+        dir: costDir,
       },
     ];
     return html`
       <div id="leasing" class="leasing-grid">
         ${items.map(
-          ({ icon, name, state, error }) => html`
+          ({ icon, name, state, dir }) => html`
             <div class="grid-item" @click=${() => this.toggleMoreInfo(leasingEntityId)}>
               <div class="item-icon">
-                <div class="icon-background" ?error=${error}>
-                  <ha-icon .icon=${icon} ?error=${error}></ha-icon>
+                <div class="icon-background" ?error=${dir === 'error'} ?good=${dir === 'good'}>
+                  <ha-icon .icon=${icon} ?error=${dir === 'error'} ?good=${dir === 'good'}></ha-icon>
                 </div>
               </div>
               <div class="item-content">
                 <div class="primary"><span>${name}</span></div>
-                <span class="secondary" ?error=${error}>${state}</span>
+                <span class="secondary" ?error=${dir === 'error'} ?good=${dir === 'good'}>${state}</span>
               </div>
             </div>
           `,

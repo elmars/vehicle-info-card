@@ -136,16 +136,15 @@
             "stateOpen": "Offen"
         },
         "leasingCard": {
-            "leaseRemaining": "Restlaufzeit",
-            "kmBalance": "km-Bilanz",
-            "projectedAtEnd": "Prognose Leasingende",
-            "projected": "Prognose",
+            "leaseRemaining": "Leasing-Restlaufzeit",
+            "kmBalance": "km-Saldo",
+            "projectedAtEnd": "Prognose Vertragsende",
             "excessKm": "Mehrkilometer",
             "underKm": "Minderkilometer",
             "payment": "Nachzahlung",
             "refund": "Erstattung",
             "costRefund": "Kosten / Erstattung",
-            "days": "Tage",
+            "days": "T",
             "months": "Mon."
         },
         "tripCard": {
