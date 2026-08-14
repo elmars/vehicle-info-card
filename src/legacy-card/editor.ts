@@ -312,6 +312,10 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
       { name: 'leasing_show_monthly', label: this.localize('card.leasingCard.monthlyRemaining') },
       { name: 'leasing_show_projected', label: this.localize('card.leasingCard.projectedAtEnd') },
       { name: 'leasing_show_cost', label: this.localize('card.leasingCard.costRefund') },
+      { name: 'leasing_show_total', label: this.localize('card.leasingCard.totalDistance') },
+      { name: 'leasing_show_start', label: this.localize('card.leasingCard.startDate') },
+      { name: 'leasing_show_end', label: this.localize('card.leasingCard.endDate') },
+      { name: 'leasing_show_average', label: this.localize('card.leasingCard.monthlyAverage') },
     ];
     const leasingForm = this._createHaForm(
       {
@@ -320,6 +324,10 @@ export class VehicleCardEditor extends LitElement implements LovelaceCardEditor 
         leasing_show_monthly: this._config.leasing_show_monthly !== false,
         leasing_show_projected: this._config.leasing_show_projected !== false,
         leasing_show_cost: this._config.leasing_show_cost !== false,
+        leasing_show_total: this._config.leasing_show_total !== false,
+        leasing_show_start: this._config.leasing_show_start !== false,
+        leasing_show_end: this._config.leasing_show_end !== false,
+        leasing_show_average: this._config.leasing_show_average !== false,
       },
       LEASING_SCHEMA(localize('leasingSensor'), leasingToggles)
     );

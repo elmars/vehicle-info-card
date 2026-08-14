@@ -144,6 +144,10 @@
             "payment": "Additional payment",
             "refund": "Refund",
             "costRefund": "Cost / refund",
+            "totalDistance": "Total allowance",
+            "startDate": "Start date",
+            "endDate": "End date",
+            "monthlyAverage": "Current km/month",
             "days": "d",
             "months": "mo"
         },

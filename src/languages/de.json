@@ -144,6 +144,10 @@
             "payment": "Nachzahlung",
             "refund": "Erstattung",
             "costRefund": "Kosten / Erstattung",
+            "totalDistance": "Gesamtkilometer",
+            "startDate": "Startdatum",
+            "endDate": "Enddatum",
+            "monthlyAverage": "Aktuelle km/Monat",
             "days": "T",
             "months": "Mon."
         },

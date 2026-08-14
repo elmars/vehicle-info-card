@@ -22,6 +22,10 @@ export interface VehicleCardConfig extends LovelaceCardConfig {
   leasing_show_monthly?: boolean;
   leasing_show_projected?: boolean;
   leasing_show_cost?: boolean;
+  leasing_show_total?: boolean;
+  leasing_show_start?: boolean;
+  leasing_show_end?: boolean;
+  leasing_show_average?: boolean;
   selected_language?: string;
   model_name?: string;
   images?: ImageConfig[];

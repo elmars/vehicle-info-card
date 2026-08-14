@@ -79,6 +79,12 @@ const formatLeaseRemaining = (days: number, months: number, daysUnit: string, mo
   return '—';
 };
 
+const formatLeaseDate = (value: unknown, lang: string): string => {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString(lang);
+};
+
 const formatLeaseCost = (value: number, currency: string): string => {
   if (!Number.isFinite(value)) return '—';
   try {
@@ -481,6 +487,10 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const daysRemaining = available ? leaseAttrNumber(leaseState, 'days_remaining') : NaN;
     const monthsRemaining = available ? leaseAttrNumber(leaseState, 'months_remaining') : NaN;
     const monthlyRemaining = available ? leaseAttrNumber(leaseState, 'monthly_remaining') : NaN;
+    const totalDistance = available ? leaseAttrNumber(leaseState, 'total_distance') : NaN;
+    const monthlyAverage = available ? leaseAttrNumber(leaseState, 'monthly_average') : NaN;
+    const leaseStart = available ? leaseState?.attributes?.lease_start : undefined;
+    const leaseEnd = available ? leaseState?.attributes?.lease_end : undefined;
     const projectedDelta = available ? Number(leaseState.state) : NaN;
     const projectedCost = available ? leaseAttrNumber(leaseState, 'projected_cost') : NaN;
     const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
@@ -530,6 +540,34 @@ export class VehicleCard extends LitElement implements LovelaceCard {
         state: formatLeaseCost(costDir ? Math.abs(projectedCost) : projectedCost, currency),
         dir: costDir,
         visible: show('leasing_show_cost'),
+      },
+      {
+        icon: 'mdi:counter',
+        name: localize('totalDistance'),
+        state: Number.isFinite(totalDistance) ? `${Math.round(totalDistance).toLocaleString()} ${distanceUnit}` : '—',
+        dir: '',
+        visible: show('leasing_show_total'),
+      },
+      {
+        icon: 'mdi:calendar-start',
+        name: localize('startDate'),
+        state: formatLeaseDate(leaseStart, this.userLang),
+        dir: '',
+        visible: show('leasing_show_start'),
+      },
+      {
+        icon: 'mdi:calendar-end',
+        name: localize('endDate'),
+        state: formatLeaseDate(leaseEnd, this.userLang),
+        dir: '',
+        visible: show('leasing_show_end'),
+      },
+      {
+        icon: 'mdi:speedometer',
+        name: localize('monthlyAverage'),
+        state: Number.isFinite(monthlyAverage) ? `${Math.round(monthlyAverage).toLocaleString()} ${distanceUnit}` : '—',
+        dir: '',
+        visible: show('leasing_show_average'),
       },
     ].filter((item) => item.visible);
     if (!items.length) return nothing;
@@ -1789,7 +1827,16 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     if (configName) gridRowSize += name;
     if (this.config.leasing_entity) {
       const visibleLeasingItems = (
-        ['leasing_show_remaining', 'leasing_show_monthly', 'leasing_show_projected', 'leasing_show_cost'] as const
+        [
+          'leasing_show_remaining',
+          'leasing_show_monthly',
+          'leasing_show_projected',
+          'leasing_show_cost',
+          'leasing_show_total',
+          'leasing_show_start',
+          'leasing_show_end',
+          'leasing_show_average',
+        ] as const
       ).filter((key) => this.config[key] !== false).length;
       gridRowSize += (Math.ceil(visibleLeasingItems / 2) * 65) / ROWPX;
     }
