@@ -480,7 +480,7 @@ export class VehicleCard extends LitElement implements LovelaceCard {
     const available = leaseState && !/(unknown|unavailable)/.test(leaseState.state);
     const daysRemaining = available ? leaseAttrNumber(leaseState, 'days_remaining') : NaN;
     const monthsRemaining = available ? leaseAttrNumber(leaseState, 'months_remaining') : NaN;
-    const deviation = available ? leaseAttrNumber(leaseState, 'deviation') : NaN;
+    const monthlyRemaining = available ? leaseAttrNumber(leaseState, 'monthly_remaining') : NaN;
     const projectedDelta = available ? Number(leaseState.state) : NaN;
     const projectedCost = available ? leaseAttrNumber(leaseState, 'projected_cost') : NaN;
     const distanceUnit = leaseState?.attributes?.unit_of_measurement || 'km';
@@ -496,10 +496,13 @@ export class VehicleCard extends LitElement implements LovelaceCard {
         dir: '',
       },
       {
+        // remaining allowed average distance per month; negative = allowance already used up
         icon: 'mdi:map-marker-distance',
-        name: localize('kmBalance'),
-        state: formatSignedDistance(deviation, distanceUnit),
-        dir: leaseDir(deviation),
+        name: localize('monthlyRemaining'),
+        state: Number.isFinite(monthlyRemaining)
+          ? `${Math.round(monthlyRemaining).toLocaleString()} ${distanceUnit}`
+          : '—',
+        dir: Number.isFinite(monthlyRemaining) && monthlyRemaining < 0 ? 'error' : '',
       },
       {
         // Directional label ("excess"/"under") carries the sign, so the value goes unsigned;

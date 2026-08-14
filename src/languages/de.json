@@ -137,7 +137,7 @@
         },
         "leasingCard": {
             "leaseRemaining": "Leasing-Restlaufzeit",
-            "kmBalance": "km-Saldo",
+            "monthlyRemaining": "Restsaldo/Monat",
             "projectedAtEnd": "Prognose Vertragsende",
             "excessKm": "Mehrkilometer",
             "underKm": "Minderkilometer",

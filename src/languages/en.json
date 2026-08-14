@@ -137,7 +137,7 @@
         },
         "leasingCard": {
             "leaseRemaining": "Lease remaining",
-            "kmBalance": "km balance",
+            "monthlyRemaining": "Remaining / month",
             "projectedAtEnd": "Projected at end",
             "excessKm": "Excess mileage",
             "underKm": "Unused mileage",
